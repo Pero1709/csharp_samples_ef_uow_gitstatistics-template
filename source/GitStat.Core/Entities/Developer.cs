@@ -12,5 +12,14 @@ namespace GitStat.Core.Entities
         public string Name { get; set; }
         public ICollection<Commit> Commits { get; set; }
 
+        public Developer()
+        {
+            Commits = new List<Commit>();
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(Name)}: {Name}";
+        }
     }
 }
