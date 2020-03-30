@@ -17,19 +17,19 @@ namespace GitStat.ImportConsole
         /// </summary>
         public static Commit[] ReadFromCsv()
         {
-            Dictionary<string, Developer> developers = new Dictionary<string, Developer>();
             string filePath = MyFile.GetFullNameInApplicationTree(Filename);
             string[] lines = File.ReadAllLines(filePath);
+            Dictionary<string, Developer> developers = new Dictionary<string, Developer>();
             List<Commit> commits = new List<Commit>();
             bool isHeaderFound = false;
-            string parseString = "";
+            bool isCommitAddOn = false;
             int changes = 0;
             int inserts = 0;
             int deletes = 0;
-            bool isCommitAddOn = false;
 
             foreach (var item in lines)
             {
+                string parseString = "";
                 string[] parts = item.Split(',');
 
                 if (parts.Length >= 4)
@@ -48,12 +48,16 @@ namespace GitStat.ImportConsole
                 {
                     string[] data = parseString.Split(';');
                     string name = data[1];
-                    Developer tmp;
+                    string hashCode = data[0];
+                    string message = data[3];
+                    DateTime dateTime = Convert.ToDateTime(data[2]);
+
+                    Developer devOp;
                     Commit commit = new Commit
                     {
-                        Date = Convert.ToDateTime(data[2]),
-                        HashCode = data[0],
-                        Message = data[3]
+                        Date = dateTime,
+                        HashCode = hashCode,
+                        Message = message
                     };
 
                     if (isCommitAddOn)
@@ -63,28 +67,26 @@ namespace GitStat.ImportConsole
                         commit.Deletions = deletes;
                     }
 
-                    if (developers.TryGetValue(data[1], out tmp))
+                    if (developers.TryGetValue(name, out devOp))
                     {
-                        commit.Developer = tmp;
-                        tmp.Commits.Add(commit);
+                        commit.Developer = devOp;
+                        devOp.Commits.Add(commit);
                     }
                     else
                     {
-                        Developer newDeveloper = new Developer
+                        Developer newDevOp = new Developer
                         {
                             Name = name,
                         };
-                        commit.Developer = newDeveloper;
-                        newDeveloper.Commits.Add(commit);
-                        developers.Add(name, newDeveloper);
+                        commit.Developer = newDevOp;
+                        newDevOp.Commits.Add(commit);
+                        developers.Add(name, newDevOp);
                     }
 
                     commits.Add(commit);
-                    parseString = "";
                     isHeaderFound = false;
                     isCommitAddOn = false;
                 }
-
             }
             return commits.ToArray();
         }
