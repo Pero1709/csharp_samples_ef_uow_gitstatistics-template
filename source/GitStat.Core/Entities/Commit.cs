@@ -20,5 +20,10 @@ namespace GitStat.Core.Entities
         public int Insertions { get; set; } = 0;
         public int Deletions { get; set; } = 0;
 
+        public override string ToString()
+        {
+            return $"{Developer,-20}{Date.ToShortDateString(),-15}{FilesChanges,-15}{Insertions,-15}{Deletions}";
+        }
+
     }
 }

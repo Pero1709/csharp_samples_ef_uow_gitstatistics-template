@@ -9,5 +9,7 @@ namespace GitStat.Core.Contracts
     public interface ICommitRepository
     {
         void AddRange(Commit[] commits);
+        Commit[] GetCommitsFromLast4Wekks();
+        Commit GetCommitById(int id);
     }
 }

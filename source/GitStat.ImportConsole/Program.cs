@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using GitStat.Core.Contracts;
+using GitStat.Core.Entities;
 using GitStat.Persistence;
 
 namespace GitStat.ImportConsole
@@ -41,10 +42,37 @@ namespace GitStat.ImportConsole
             Console.WriteLine("=================");
             using (IUnitOfWork unitOfWork = new UnitOfWork())
             {
+                var commits = unitOfWork.CommitRepository.GetCommitsFromLast4Wekks();
+                Console.WriteLine("Commits der letzten 4 Wochen");
+                Console.WriteLine("----------------------------");
+                WriteCommits(commits);
+                Console.WriteLine();
+
+                Console.WriteLine("Commit mit Id 4");
+                Console.WriteLine("---------------");
+                var commit = unitOfWork.CommitRepository.GetCommitById(4);
+                Console.WriteLine(commit.ToString());
+                Console.WriteLine();
+
+                Console.WriteLine("Statistik der Commits der Developer");
+                Console.WriteLine("-----------------------------------");
+                var stats = unitOfWork.DeveloperRepository.GetDevOpStats();
+                WriteCommits(stats);
             }
             Console.Write("Beenden mit Eingabetaste ...");
             Console.ReadLine();
         }
 
+        
+
+        private static void WriteCommits(Commit[] commits)
+        {
+            Console.WriteLine($"{"Developer",-20}{"Date",-15}{"FileChanges",-15}{"Insertions",-15}{"Deletions"}");
+            for (int i = 0; i < commits.Length; i++)
+            {
+                Console.WriteLine($"{commits[i].Developer,-20} {commits[i].Date.ToShortDateString(),-15} {commits[i].FilesChanges,-15}" +
+                    $"{commits[i].Insertions,-15}{commits[i].Deletions}");
+            }
+        }
     }
 }

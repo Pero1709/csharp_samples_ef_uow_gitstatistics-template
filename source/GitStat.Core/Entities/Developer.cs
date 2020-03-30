@@ -19,7 +19,7 @@ namespace GitStat.Core.Entities
 
         public override string ToString()
         {
-            return $"{nameof(Name)}: {Name}";
+            return $"{Name}";
         }
     }
 }

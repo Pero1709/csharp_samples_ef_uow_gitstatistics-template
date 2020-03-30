@@ -1,4 +1,5 @@
 ﻿using GitStat.Core.Contracts;
+using GitStat.Core.Entities;
 
 namespace GitStat.Persistence
 {
@@ -11,6 +12,9 @@ namespace GitStat.Persistence
             _dbContext = dbContext;
         }
 
-
+        public Commit[] GetDevOpStats()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
