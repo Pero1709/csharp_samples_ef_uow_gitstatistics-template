@@ -16,9 +16,9 @@ namespace GitStat.Core.Entities
 
         public string Message { get; set; }
 
-        public int FilesChanges { get; set; }
-        public int Insertions { get; set; }
-        public int Deletions { get; set; }
+        public int FilesChanges { get; set; } = 0;
+        public int Insertions { get; set; } = 0;
+        public int Deletions { get; set; } = 0;
 
     }
 }

@@ -20,55 +20,46 @@ namespace GitStat.ImportConsole
             Dictionary<string, Developer> developers = new Dictionary<string, Developer>();
             string filePath = MyFile.GetFullNameInApplicationTree(Filename);
             string[] lines = File.ReadAllLines(filePath);
-            string parseString = "";
             List<Commit> result = new List<Commit>();
             bool isHeaderFound = false;
-            bool isFotterFound = false;
+            string parseString = "";
+            int changes = 0;
+            int inserts = 0;
+            int deletes = 0;
+            bool isCommitAddOn = false;
 
             foreach (var item in lines)
             {
                 string[] parts = item.Split(',');
 
-                if (parts.Length >= 4 && !isHeaderFound)
+                if (parts.Length >= 4)
                 {
-                    for (int i = 0; i < parts.Length; i++)
-                    {
-                        if (i < 4)
-                        {
-                            parseString += parts[i] + ';';
-                        }
-                    }
+                    parseString = ParseText(parts);
                     isHeaderFound = true;
                 }
-                if (item.Contains("files") && isHeaderFound)
-                {
-                    for (int i = 0; i < parts.Length; i++)
-                    {
 
-                        if (parts.Length - 1 != i)
-                        {
-                            parseString += parts[i] + ';';
-                        }
-                        else
-                        {
-                            parseString += parts[i];
-                        }
-                    }
-                    isFotterFound = true;
+                if (item.Contains("file changed") || item.Contains("files changed"))
+                {
+                    GetFooterInformation(parts, out changes, out inserts, out deletes);
+                    isCommitAddOn = true;
                 }
 
-                if (isHeaderFound && isFotterFound)
+                if (isHeaderFound)
                 {
                     string[] data = parseString.Split(';');
                     Commit commit = new Commit
                     {
                         Date = Convert.ToDateTime(data[2]),
                         HashCode = data[0],
-                        Message = data[3],
-                        FilesChanges = GetNumber(data[4]),
-                        Insertions = GetNumber(data[5]),
-                        Deletions = GetNumber(data[6])
+                        Message = data[3]
                     };
+
+                    if (isCommitAddOn)
+                    {
+                        commit.FilesChanges = changes;
+                        commit.Insertions = inserts;
+                        commit.Deletions = deletes;
+                    }
 
                     Developer tmp;
                     if (!developers.TryGetValue(data[1], out tmp))
@@ -86,14 +77,65 @@ namespace GitStat.ImportConsole
                         commit.Developer = tmp;
                         tmp.Commits.Add(commit);
                     }
-                    isFotterFound = false;
-                    isHeaderFound = false;
-                    parseString = "";
+
                     result.Add(commit);
+                    parseString = "";
+                    isHeaderFound = false;
+                    isCommitAddOn = false;
                 }
+
             }
             return result.ToArray();
         }
+
+        #region Methods
+
+        private static void GetFooterInformation(string[] parts, out int changes, out int inserts, out int deletes)
+        {
+            inserts = 0;
+            deletes = 0;
+            changes = GetNumber(parts[0]);
+            if (parts.Length == 3)
+            {
+                inserts = GetNumber(parts[1]);
+                deletes = GetNumber(parts[2]);
+            }
+            else
+            {
+                if (parts[1].Contains("insertions"))
+                {
+                    inserts = GetNumber(parts[1]);
+                }
+                else if (parts[1].Contains("deletions"))
+                {
+                    deletes = GetNumber(parts[1]);
+                }
+            }
+        }
+
+        private static string ParseText(string[] parts)
+        {
+            string parseString = "";
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (i < 4)
+                {
+                    if (i < 3)
+                    {
+                        parseString += parts[i] + ';';
+                    }
+                    else
+                    {
+                        parseString += parts[i];
+                    }
+                }
+            }
+            return parseString;
+        }
+
+        #endregion
+
+        #region Helper
 
         private static int GetNumber(string expression)
         {
@@ -107,9 +149,11 @@ namespace GitStat.ImportConsole
             }
             if (string.IsNullOrEmpty(number))
             {
-                number = "0";
+                throw new ArgumentNullException(nameof(expression));
             }
             return Convert.ToInt32(number);
         }
+
+        #endregion
     }
 }
