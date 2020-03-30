@@ -56,7 +56,7 @@ namespace GitStat.ImportConsole
 
                 Console.WriteLine("Statistik der Commits der Developer");
                 Console.WriteLine("-----------------------------------");
-                var stats = unitOfWork.DeveloperRepository.GetDevOpStats();
+                //var stats = unitOfWork.DeveloperRepository.GetDevOpStats();
                 WriteCommits(stats);
             }
             Console.Write("Beenden mit Eingabetaste ...");

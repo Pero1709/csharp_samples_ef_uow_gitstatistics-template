@@ -1,6 +1,8 @@
 ﻿using GitStat.Core.Contracts;
 using GitStat.Core.Entities;
-
+using System.Linq;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 namespace GitStat.Persistence
 {
     public class DeveloperRepository : IDeveloperRepository
@@ -12,9 +14,18 @@ namespace GitStat.Persistence
             _dbContext = dbContext;
         }
 
-        public Commit[] GetDevOpStats()
-        {
-            throw new System.NotImplementedException();
-        }
+        //public IEnumerable<Developer> GetDevOpStats() => _dbContext
+        //                                   .Developers
+        //                                   .GroupBy(d => d.Name)
+        //                                   .Select(d => new Developer
+        //                                   {
+        //                                       Name = d.Key,
+        //                                       Changes = 
+                                               
+                                               
+
+        //                                   })
+        //                                   .OrderBy(d => d.)
+        //                                   .ToArray();
     }
 }

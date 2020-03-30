@@ -25,7 +25,6 @@ namespace GitStat.Persistence
                                                       .Include(c => c.Developer)
                                                       .Where(c => c.Date.Year == 2019 && c.Date.Month == 3)
                                                       .OrderBy(c => c.Date)
-                                                      .ThenByDescending(c => c.FilesChanges)
                                                       .ToArray();
         
 

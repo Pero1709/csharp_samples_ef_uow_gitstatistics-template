@@ -21,8 +21,9 @@ namespace GitStat.ImportConsole
             string[] lines = File.ReadAllLines(filePath);
             Dictionary<string, Developer> developers = new Dictionary<string, Developer>();
             List<Commit> commits = new List<Commit>();
+            Commit commit = null;
             bool isHeaderFound = false;
-            bool isCommitAddOn = false;
+            bool isCommitFinish = false;
             int changes = 0;
             int inserts = 0;
             int deletes = 0;
@@ -31,6 +32,18 @@ namespace GitStat.ImportConsole
             {
                 string parseString = "";
                 string[] parts = item.Split(',');
+
+                if (isHeaderFound)
+                {
+                    isCommitFinish = true;
+                }
+
+                if (isHeaderFound && isCommitFinish)
+                {
+                    commits.Add(commit);
+                    isHeaderFound = false;
+                    isCommitFinish = false;
+                }
 
                 if (parts.Length >= 4)
                 {
@@ -41,7 +54,10 @@ namespace GitStat.ImportConsole
                 if (item.Contains("file changed") || item.Contains("files changed"))
                 {
                     GetFooterInformation(parts, out changes, out inserts, out deletes);
-                    isCommitAddOn = true;
+                    commit.FilesChanges = changes;
+                    commit.Insertions = inserts;
+                    commit.Deletions = deletes;
+                    isCommitFinish = true;
                 }
 
                 if (isHeaderFound)
@@ -52,19 +68,12 @@ namespace GitStat.ImportConsole
                     string message = data[3];
                     DateTime dateTime = Convert.ToDateTime(data[2]);
 
-                    Commit commit = new Commit
+                    commit = new Commit
                     {
                         Date = dateTime,
                         HashCode = hashCode,
                         Message = message
                     };
-
-                    if (isCommitAddOn)
-                    {
-                        commit.FilesChanges = changes;
-                        commit.Insertions = inserts;
-                        commit.Deletions = deletes;
-                    }
 
                     Developer devOp;
                     if (developers.TryGetValue(name, out devOp))
@@ -83,10 +92,8 @@ namespace GitStat.ImportConsole
                         developers.Add(name, newDevOp);
                     }
 
-                    commits.Add(commit);
-                    isHeaderFound = false;
-                    isCommitAddOn = false;
                 }
+
             }
             return commits.ToArray();
         }
