@@ -47,12 +47,11 @@ namespace GitStat.ImportConsole
                 if (isHeaderFound)
                 {
                     string[] data = parseString.Split(';');
-                    string name = data[1];
                     string hashCode = data[0];
+                    string name = data[1];
                     string message = data[3];
                     DateTime dateTime = Convert.ToDateTime(data[2]);
 
-                    Developer devOp;
                     Commit commit = new Commit
                     {
                         Date = dateTime,
@@ -67,6 +66,7 @@ namespace GitStat.ImportConsole
                         commit.Deletions = deletes;
                     }
 
+                    Developer devOp;
                     if (developers.TryGetValue(name, out devOp))
                     {
                         commit.Developer = devOp;
