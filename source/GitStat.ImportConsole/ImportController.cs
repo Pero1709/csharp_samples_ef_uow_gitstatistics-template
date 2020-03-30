@@ -20,7 +20,7 @@ namespace GitStat.ImportConsole
             Dictionary<string, Developer> developers = new Dictionary<string, Developer>();
             string filePath = MyFile.GetFullNameInApplicationTree(Filename);
             string[] lines = File.ReadAllLines(filePath);
-            List<Commit> result = new List<Commit>();
+            List<Commit> commits = new List<Commit>();
             bool isHeaderFound = false;
             string parseString = "";
             int changes = 0;
@@ -47,6 +47,8 @@ namespace GitStat.ImportConsole
                 if (isHeaderFound)
                 {
                     string[] data = parseString.Split(';');
+                    string name = data[1];
+                    Developer tmp;
                     Commit commit = new Commit
                     {
                         Date = Convert.ToDateTime(data[2]),
@@ -61,34 +63,33 @@ namespace GitStat.ImportConsole
                         commit.Deletions = deletes;
                     }
 
-                    Developer tmp;
-                    if (!developers.TryGetValue(data[1], out tmp))
-                    {
-                        Developer newDeveloper = new Developer
-                        {
-                            Name = data[1],
-                        };
-                        commit.Developer = newDeveloper;
-                        newDeveloper.Commits.Add(commit);
-                        developers.Add(data[1], newDeveloper);
-                    }
-                    else
+                    if (developers.TryGetValue(data[1], out tmp))
                     {
                         commit.Developer = tmp;
                         tmp.Commits.Add(commit);
                     }
+                    else
+                    {
+                        Developer newDeveloper = new Developer
+                        {
+                            Name = name,
+                        };
+                        commit.Developer = newDeveloper;
+                        newDeveloper.Commits.Add(commit);
+                        developers.Add(name, newDeveloper);
+                    }
 
-                    result.Add(commit);
+                    commits.Add(commit);
                     parseString = "";
                     isHeaderFound = false;
                     isCommitAddOn = false;
                 }
 
             }
-            return result.ToArray();
+            return commits.ToArray();
         }
 
-        #region Methods
+        #region Private
 
         private static void GetFooterInformation(string[] parts, out int changes, out int inserts, out int deletes)
         {
@@ -118,24 +119,17 @@ namespace GitStat.ImportConsole
             string parseString = "";
             for (int i = 0; i < parts.Length; i++)
             {
-                if (i < 4)
+                if (i < parts.Length - 1)
                 {
-                    if (i < 3)
-                    {
-                        parseString += parts[i] + ';';
-                    }
-                    else
-                    {
-                        parseString += parts[i];
-                    }
+                    parseString += parts[i] + ';';
+                }
+                else
+                {
+                    parseString += parts[i];
                 }
             }
             return parseString;
         }
-
-        #endregion
-
-        #region Helper
 
         private static int GetNumber(string expression)
         {
@@ -147,6 +141,7 @@ namespace GitStat.ImportConsole
                     number += expression[i];
                 }
             }
+
             if (string.IsNullOrEmpty(number))
             {
                 throw new ArgumentNullException(nameof(expression));
