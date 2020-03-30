@@ -98,12 +98,8 @@ namespace GitStat.ImportConsole
             inserts = 0;
             deletes = 0;
             changes = GetNumber(parts[0]);
-            if (parts.Length == 3)
-            {
-                inserts = GetNumber(parts[1]);
-                deletes = GetNumber(parts[2]);
-            }
-            else
+
+            if (parts.Length < 3)
             {
                 if (parts[1].Contains("insertions"))
                 {
@@ -113,6 +109,11 @@ namespace GitStat.ImportConsole
                 {
                     deletes = GetNumber(parts[1]);
                 }
+            }
+            else
+            {
+                inserts = GetNumber(parts[1]);
+                deletes = GetNumber(parts[2]);
             }
         }
 
