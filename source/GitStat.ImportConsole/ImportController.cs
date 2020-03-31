@@ -70,7 +70,7 @@ namespace GitStat.ImportConsole
                     isHeaderFound = true;
                 }
 
-                if (item.Contains("file changed") || item.Contains("files changed"))
+                if (parts.Length > 1 && parts.Length < 4)
                 {
                     GetFooterInformation(parts, out changes, out inserts, out deletes);
                     commit.FilesChanges = changes;
