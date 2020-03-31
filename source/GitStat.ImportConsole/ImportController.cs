@@ -109,23 +109,6 @@ namespace GitStat.ImportConsole
             }
         }
 
-        //private static string ParseText(string[] parts)
-        //{
-        //    string parseString = "";
-        //    for (int i = 0; i < parts.Length; i++)
-        //    {
-        //        if (i < parts.Length - 1)
-        //        {
-        //            parseString += parts[i] + ';';
-        //        }
-        //        else
-        //        {
-        //            parseString += parts[i];
-        //        }
-        //    }
-        //    return parseString;
-        //}
-
         private static int GetNumber(string expression)
         {
             string number = "";
