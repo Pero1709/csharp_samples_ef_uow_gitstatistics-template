@@ -33,35 +33,16 @@ namespace GitStat.ImportConsole
                 string parseString = "";
                 string[] parts = item.Split(',');
 
-                if (isHeaderFound)
-                {
-                    isCommitFinish = true;
-                }
-
-                if (isHeaderFound && isCommitFinish)
-                {
-                    commits.Add(commit);
-                    isHeaderFound = false;
-                    isCommitFinish = false;
-                }
-
                 if (parts.Length >= 4)
                 {
-                    parseString = ParseText(parts);
+                    if (isHeaderFound)
+                    {
+                        commits.Add(commit);
+                        isHeaderFound = false;
+                    }
+
                     isHeaderFound = true;
-                }
-
-                if (item.Contains("file changed") || item.Contains("files changed"))
-                {
-                    GetFooterInformation(parts, out changes, out inserts, out deletes);
-                    commit.FilesChanges = changes;
-                    commit.Insertions = inserts;
-                    commit.Deletions = deletes;
-                    isCommitFinish = true;
-                }
-
-                if (isHeaderFound)
-                {
+                    parseString = ParseText(parts);
                     string[] data = parseString.Split(';');
                     string hashCode = data[0];
                     string name = data[1];
@@ -91,9 +72,17 @@ namespace GitStat.ImportConsole
                         newDevOp.Commits.Add(commit);
                         developers.Add(name, newDevOp);
                     }
-
                 }
 
+                if (item.Contains("file changed") || item.Contains("files changed"))
+                {
+                    GetFooterInformation(parts, out changes, out inserts, out deletes);
+                    commit.FilesChanges = changes;
+                    commit.Insertions = inserts;
+                    commit.Deletions = deletes;
+                    isHeaderFound = false;
+                    commits.Add(commit);
+                }
             }
             return commits.ToArray();
         }
