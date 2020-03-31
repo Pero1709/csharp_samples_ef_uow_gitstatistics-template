@@ -14,18 +14,23 @@ namespace GitStat.Persistence
             _dbContext = dbContext;
         }
 
-        //public IEnumerable<Developer> GetDevOpStats() => _dbContext
-        //                                   .Developers
-        //                                   .GroupBy(d => d.Name)
-        //                                   .Select(d => new Developer
-        //                                   {
-        //                                       Name = d.Key,
-        //                                       Changes = 
-                                               
-                                               
-
-        //                                   })
-        //                                   .OrderBy(d => d.)
-        //                                   .ToArray();
+        public (string Name, int Commits, int Changes, int Inserts, int Deletes)[] GetDevOpStats()
+        {
+            return _dbContext
+                   .Developers
+                   .Include(d => d.Commits)
+                   .Select(d => new
+                   {
+                       Name = d.Name,
+                       Commits = d.Commits.Count,
+                       Changes = d.Commits.Sum(c => c.FilesChanges),
+                       Inserts = d.Commits.Sum(c => c.Insertions),
+                       Deletes = d.Commits.Sum(c => c.Deletions)
+                   })
+                   .OrderByDescending(d => d.Commits)
+                   .AsEnumerable()
+                   .Select(d => (d.Name, d.Commits, d.Changes, d.Inserts, d.Deletes))
+                   .ToArray();
+        }
     }
 }

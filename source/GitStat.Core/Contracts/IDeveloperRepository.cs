@@ -4,6 +4,6 @@ namespace GitStat.Core.Contracts
 {
     public interface IDeveloperRepository
     {
-        //Commit[] GetDevOpStats();
+        public (string Name, int Commits, int Changes, int Inserts, int Deletes)[] GetDevOpStats();
     }
 }

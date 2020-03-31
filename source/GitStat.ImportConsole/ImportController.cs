@@ -23,14 +23,12 @@ namespace GitStat.ImportConsole
             List<Commit> commits = new List<Commit>();
             Commit commit = null;
             bool isHeaderFound = false;
-            bool isCommitFinish = false;
             int changes = 0;
             int inserts = 0;
             int deletes = 0;
 
             foreach (var item in lines)
             {
-                string parseString = "";
                 string[] parts = item.Split(',');
 
                 if (parts.Length >= 4)
@@ -41,13 +39,10 @@ namespace GitStat.ImportConsole
                         isHeaderFound = false;
                     }
 
-                    isHeaderFound = true;
-                    parseString = ParseText(parts);
-                    string[] data = parseString.Split(';');
-                    string hashCode = data[0];
-                    string name = data[1];
-                    string message = data[3];
-                    DateTime dateTime = Convert.ToDateTime(data[2]);
+                    string hashCode = parts[0];
+                    string name = parts[1];
+                    string message = parts[3];
+                    DateTime dateTime = Convert.ToDateTime(parts[2]);
 
                     commit = new Commit
                     {
@@ -72,6 +67,7 @@ namespace GitStat.ImportConsole
                         newDevOp.Commits.Add(commit);
                         developers.Add(name, newDevOp);
                     }
+                    isHeaderFound = true;
                 }
 
                 if (item.Contains("file changed") || item.Contains("files changed"))
@@ -80,8 +76,8 @@ namespace GitStat.ImportConsole
                     commit.FilesChanges = changes;
                     commit.Insertions = inserts;
                     commit.Deletions = deletes;
-                    isHeaderFound = false;
                     commits.Add(commit);
+                    isHeaderFound = false;
                 }
             }
             return commits.ToArray();
@@ -113,22 +109,22 @@ namespace GitStat.ImportConsole
             }
         }
 
-        private static string ParseText(string[] parts)
-        {
-            string parseString = "";
-            for (int i = 0; i < parts.Length; i++)
-            {
-                if (i < parts.Length - 1)
-                {
-                    parseString += parts[i] + ';';
-                }
-                else
-                {
-                    parseString += parts[i];
-                }
-            }
-            return parseString;
-        }
+        //private static string ParseText(string[] parts)
+        //{
+        //    string parseString = "";
+        //    for (int i = 0; i < parts.Length; i++)
+        //    {
+        //        if (i < parts.Length - 1)
+        //        {
+        //            parseString += parts[i] + ';';
+        //        }
+        //        else
+        //        {
+        //            parseString += parts[i];
+        //        }
+        //    }
+        //    return parseString;
+        //}
 
         private static int GetNumber(string expression)
         {

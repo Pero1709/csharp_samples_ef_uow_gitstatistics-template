@@ -5,6 +5,7 @@ using System.Text;
 using GitStat.Core.Contracts;
 using GitStat.Core.Entities;
 using GitStat.Persistence;
+using System.Collections.Generic;
 
 namespace GitStat.ImportConsole
 {
@@ -56,8 +57,13 @@ namespace GitStat.ImportConsole
 
                 Console.WriteLine("Statistik der Commits der Developer");
                 Console.WriteLine("-----------------------------------");
-                //var stats = unitOfWork.DeveloperRepository.GetDevOpStats();
-                //WriteCommits(stats);
+                var stats = unitOfWork.DeveloperRepository.GetDevOpStats();
+                foreach (var item in stats)
+                {
+                    Console.WriteLine($"{item.Name,-20} {item.Commits,-15} {item.Changes,-15}" +
+                    $"{item.Inserts,-15}{item.Deletes}");
+                }
+                Console.WriteLine();
             }
             Console.Write("Beenden mit Eingabetaste ...");
             Console.ReadLine();
@@ -68,6 +74,7 @@ namespace GitStat.ImportConsole
         private static void WriteCommits(Commit[] commits)
         {
             Console.WriteLine($"{"Developer",-20}{"Date",-15}{"FileChanges",-15}{"Insertions",-15}{"Deletions"}");
+            
             for (int i = 0; i < commits.Length; i++)
             {
                 Console.WriteLine($"{commits[i].Developer,-20} {commits[i].Date.ToShortDateString(),-15} {commits[i].FilesChanges,-15}" +
